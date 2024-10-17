@@ -206,7 +206,7 @@ def get_objects(params: CollectionParameters, request_user: UserModel):
                                                         limit=params.limit,
                                                         skip=params.skip,
                                                         sort=params.sort,
-                                                        order=params.order,
+                                                        order=-params.order,
                                                         user=request_user,
                                                         permission=AccessControlPermission.READ)
 

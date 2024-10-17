@@ -98,6 +98,9 @@ class CmdbObject(CmdbDAO):
         }
     }
 
+    INDEX_KEYS = [
+        {'keys': [('type_id', CmdbDAO.DAO_ASCENDING), ('active', CmdbDAO.DAO_ASCENDING)], 'name': 'type_id_1_active_1'}
+    ]
 
     def __init__(self,
                  type_id,

@@ -76,16 +76,17 @@ class ObjectQueryBuilder(ManagerQueryBuilder):
             The `FrameworkQueryBuilder` query pipeline with the parameter contents.
         """
         self.clear()
-        loading_dep_preset = [
-            self.lookup_(_from='framework.types', _local='type_id', _foreign='public_id', _as='type'),
-            self.unwind_({'path': '$type'}),
-            self.match_({'type': {'$ne': None}}),
-            self.lookup_(_from='management.users', _local='author_id', _foreign='public_id', _as='author'),
-            self.unwind_({'path': '$author', 'preserveNullAndEmptyArrays': True}),
-            self.lookup_(_from='management.users', _local='editor_id', _foreign='public_id', _as='editor'),
-            self.unwind_({'path': '$editor', 'preserveNullAndEmptyArrays': True}),
-        ]
-        self.query = Pipeline(loading_dep_preset)
+        #loading_dep_preset = [
+        #    self.lookup_(_from='framework.types', _local='type_id', _foreign='public_id', _as='type'),
+        #    self.unwind_({'path': '$type'}),
+        #    self.match_({'type': {'$ne': None}}),
+        #    self.lookup_(_from='management.users', _local='author_id', _foreign='public_id', _as='author'),
+        #    self.unwind_({'path': '$author', 'preserveNullAndEmptyArrays': True}),
+        #    self.lookup_(_from='management.users', _local='editor_id', _foreign='public_id', _as='editor'),
+        #    self.unwind_({'path': '$editor', 'preserveNullAndEmptyArrays': True}),
+        #]
+        #self.query = Pipeline(loading_dep_preset)
+        self.query = []
 
         if isinstance(filter, dict):
             self.query.append(self.match_(filter))
@@ -93,13 +94,15 @@ class ObjectQueryBuilder(ManagerQueryBuilder):
             for pipe in filter:
                 self.query.append(pipe)
 
-        if user and permission:
-            self.query += (AccessControlQueryBuilder().build(group_id=PublicID(user.group_id), permission=permission))
+        #if user and permission:
+        #    self.query += (AccessControlQueryBuilder().build(group_id=PublicID(user.group_id), permission=permission))
 
         if limit == 0:
             results_query = [self.skip_(limit)]
         else:
             results_query = [self.skip_(skip), self.limit_(limit)]
+
+        self.query += results_query
 
         # TODO: Remove nasty quick hack
         if sort.startswith('fields'):
@@ -112,12 +115,10 @@ class ObjectQueryBuilder(ManagerQueryBuilder):
                         'cond': {'$eq': ['$$fields.name', sort_value]}
                     }
                 }
-            }})
+            }})#
             self.query.append({'$sort': {'order': order}})
         else:
             self.query.append(self.sort_(sort=sort, order=order))
-
-        self.query += results_query
 
         return self.query
 
@@ -143,8 +144,8 @@ class ObjectQueryBuilder(ManagerQueryBuilder):
             for pipe in filter:
                 self.query.append(pipe)
 
-        if user and permission:
-            self.query += (AccessControlQueryBuilder().build(group_id=PublicID(user.group_id), permission=permission))
+        #if user and permission:
+        #    self.query += (AccessControlQueryBuilder().build(group_id=PublicID(user.group_id), permission=permission))
 
         self.query.append(self.count_('total'))
         return self.query
@@ -214,6 +215,9 @@ class ObjectManager(ManagerBase):
             total = 0
             while total_cursor.alive:
                 total = next(total_cursor)['total']
+
+            print(f"Query filter: {query}")
+            print(f"Count query: {count_query}")
         except ManagerGetError as err:
             raise ManagerIterationError(err) from err
         iteration_result: IterationResult[CmdbObject] = IterationResult(aggregation_result, total)
