@@ -121,7 +121,7 @@ export class SidebarService {
     public initializeCounter(sidebarType: SidebarTypeComponent) {
         this.reloadData.subscribe( () => { 
             this.sideBarType.push(sidebarType);
-            this.updateTypeCounter(sidebarType.type.public_id);
+            //this.updateTypeCounter(sidebarType.type.public_id);
         });
     }
 

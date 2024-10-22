@@ -158,3 +158,10 @@
 		},
 		"name" : "type_id_1_active_1"
 	}
+
+# Version 2.2.0.sopris.1
+
+## <ins>Frontend Changes</ins>
+
+To prevent the frontend from making multiple requests to the backend when the UI is opened, code was commented out to avoid loading the dashboard on the home screen and the bubbles that display the number of records on the left sidebar.
+
