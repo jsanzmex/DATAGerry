@@ -29,3 +29,25 @@ See [DATAGERRY website](https://www.datagerry.com) for more details!
 | Service        | development      | master       |
 | -------------- |----------------- | ------------ |
 | Github Actions | ![Continous Integration](https://github.com/DATAGerry/DATAGerry/workflows/Continous%20Integration/badge.svg?branch=development) | ![Continous Integration](https://github.com/DATAGerry/DATAGerry/workflows/Continous%20Integration/badge.svg?branch=master) |
+
+
+## Packaging the Code for Sopris Modifications
+
+When Sopris modifies the DATAGerry code, we use the `make rpm` command to package the software in RPM format. This packaging process, which prepares the code for distribution, installation, and updates, is compatible with Linux-based systems like CentOS and Red Hat.
+
+### dependencies.sh: Installing Required Dependencies (One-Time Setup)
+
+To support the `make rpm` packaging process, we created a script called dependencies.sh, which installs all the necessary dependencies for `make rpm` to function. These dependencies only need to be installed once on each environment where the packaging process will be executed.
+
+#### Location of the Script
+
+The `dependencies.sh` script is available in the root folder of this repository.
+
+### Workflow for Code Modifications by Sopris
+
+The workflow for making and packaging code modifications is as follows:
+
+1. Make the necessary code modifications.
+2. Run the `dependencies.sh` script to install dependencies (one-time setup).
+3. Package the code using the make rpm command.
+4. Deploy the packaged code.

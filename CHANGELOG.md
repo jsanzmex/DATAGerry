@@ -149,7 +149,7 @@
 
 - In the /rest/objects endpoint, the match between `types.public_id` and `objects.type_id` was removed from the database query to optimize performance. This change does not pose a problem because neither the graphical interface nor the RestAPI allows creating records in the `objects` collection for a `type` that does not exist. The only way to create a record in `objects` with a non-existent `type` is by directly inserting it into MongoDB. Before this change, if such a record existed, the RestAPI would not return it because it first checked for a match between the `types` and `objects` collections. Now, with the optimization, the match is no longer made, and the record could be retrieved via the RestAPI. However, this is not a risk because our use cases do not include direct database insertion. Additionally, ACL checks were removed to further optimize the query.
 
-- A new index was added to the `framework.objects` collection to improve query performance:
+- A new index was added to the `framework.objects` collection to improve query performance. Now, when the database is created, the code automatically generates this new index:
     {
 		"v" : 2,
 		"key" : {
