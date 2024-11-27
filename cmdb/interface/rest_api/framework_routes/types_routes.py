@@ -261,8 +261,6 @@ def delete_type(public_id: int, request_user: UserModel):
     """
     type_manager: TypeManager = ManagerProvider.get_manager(ManagerType.TYPE_MANAGER, request_user)
     object_manager: ObjectManager = ManagerProvider.get_manager(ManagerType.OBJECT_MANAGER, request_user)
-    deprecated_object_manager: CmdbObjectManager = ManagerProvider.get_manager(ManagerType.CMDB_OBJECT_MANAGER,
-                                                                               request_user)
 
     try:
         objects_count = object_manager.count_objects(public_id)
@@ -270,8 +268,6 @@ def delete_type(public_id: int, request_user: UserModel):
         if objects_count > 0:
             raise ManagerDeleteError('Delete not possible if objects of this type exist')
 
-        objects_ids = [object_.get_public_id() for object_ in deprecated_object_manager.get_objects_by_type(public_id)]
-        deprecated_object_manager.delete_many_objects({'type_id': public_id}, objects_ids, None)
         deleted_type = type_manager.delete(public_id=PublicID(public_id))
         api_response = DeleteSingleResponse(raw=TypeModel.to_json(deleted_type), model=TypeModel.MODEL)
     except ManagerGetError as err:

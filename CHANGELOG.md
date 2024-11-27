@@ -165,3 +165,29 @@
 
 To prevent the frontend from making multiple requests to the backend when the UI is opened, code was commented out to avoid loading the dashboard on the home screen and the bubbles that display the number of records on the left sidebar.
 
+# Version 2.2.0.sopris.2
+
+## <ins>Backend Changes</ins>
+
+A bug in the `DELETE /rest/types/<int:public_id>` endpoint that prevented types from being deleted has been fixed. The issue was resolved by removing three unnecessary lines of code that caused an error. Below is an explanation of the original behavior, why those lines were unnecessary, and how the bug impacted the process:
+
+### Original Behavior (with bug):
+
+1. Validate that the type has no associated objects.  
+2. If objects are associated with the type:  
+   - Return an error.  
+3. If **no** objects are associated with the type:  
+   - **(Error)** Attempt to delete all associated objects. *(This step was unnecessary because it had already been validated that no objects existed. Furthermore, it caused an error that prevented the following steps from being executed.)*  
+   - Delete the type.
+
+---
+
+### Current Behavior (without bug):
+
+1. Validate that the type has no associated objects.  
+2. If objects are associated with the type:  
+   - Return an error.  
+3. If **no** objects are associated with the type:  
+   - Delete the type. *(The unnecessary step that caused the error was removed, allowing the type deletion to proceed as intended.)*
+
+---
