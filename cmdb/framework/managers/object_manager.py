@@ -408,6 +408,75 @@ class ObjectManager(ManagerBase):
         # Filter the public_id's of these types
         query.append({'$project': {"public_id": 1, "_id": 0}})
 
+        query2 = query.copy()
+
+        query2.append({'$lookup': {
+            'from': 'framework.objects',
+            'let': {'local_type_id': '$public_id'},
+            'pipeline': [
+                {
+                    '$match': {
+                        '$expr': {'$eq': ['$type_id', '$$local_type_id']},
+                        'multi_data_sections': {
+                            '$elemMatch': {
+                                'values': {
+                                    '$elemMatch': {
+                                        'data': {
+                                            '$elemMatch': {
+                                                'value': referenced_object.public_id
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            'as': 'type_objects'
+        }})
+
+        query2.append({'$match': {"type_objects.0": {"$exists": True}}})
+
+        query2.append(Builder.unwind_({'path': '$type_objects'}))
+
+        query2.append({'$match': {"type_objects.multi_data_sections.0": {"$exists": True}}})
+
+        query2.append({'$project': {"type_objects": 1}})
+
+        query2.append({'$replaceRoot': {"newRoot": '$type_objects'}})
+
+        query2.append({'$project': {"_id": 0}})
+
+        try:
+            results2 = list(self._aggregate(self.type_manager.collection, query2))
+        except ManagerIterationError as err:
+            LOGGER.debug("[get_mds_references_for_object] aggregation error 2: %s", err)
+
+        matching_results2 = []
+
+        print("Q2 ========================")
+
+        # Check if the mds data references the current object
+        for result in results2:
+            print(result)
+            print()
+            try:
+                for mds_entry in result["multi_data_sections"]:
+                    for value in mds_entry["values"]:
+                        data_set: dict
+                        for data_set in value["data"]:
+                            if self.__is_ref_field(data_set["name"], result) and \
+                            "value" in data_set.keys() and \
+                            data_set["value"] == referenced_object.public_id:
+                                matching_results2.append(result)
+                                # this result is a match => go back to outer loop
+                                raise StopIteration()
+            except StopIteration:
+                pass
+
+        print("q2 succesfully executed")
+
         # Get all objects of these types
         query.append(Builder.lookup_(_from='framework.objects',
                                      _local='public_id',
@@ -440,8 +509,12 @@ class ObjectManager(ManagerBase):
 
         matching_results = []
 
+        print("Q1 ========================")
+
         # Check if the mds data references the current object
         for result in results:
+            print(result)
+            print()
             try:
                 for mds_entry in result["multi_data_sections"]:
                     for value in mds_entry["values"]:
@@ -455,6 +528,22 @@ class ObjectManager(ManagerBase):
                                 raise StopIteration()
             except StopIteration:
                 pass
+
+        
+
+        try:
+            print("<<<<<<<<<>>>>>>>>>>")
+            print(f"Collection: {self.type_manager.collection}")
+            print()
+            print(f"Query 1: {query}")
+            print(f"Results in query 1: {len(results)}")
+            print(f"Matching results en query 1: {len(matching_results)}")
+            print()
+            print(f"Query 2: {query2}")
+            print(f"Results in query 2: {len(results2)}")
+            print(f"Matching results en query 2: {len(matching_results2)}")
+        except Exception as e:
+            print(e)
 
         return matching_results
 
