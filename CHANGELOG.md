@@ -191,3 +191,24 @@ A bug in the `DELETE /rest/types/<int:public_id>` endpoint that prevented types 
    - Delete the type. *(The unnecessary step that caused the error was removed, allowing the type deletion to proceed as intended.)*
 
 ---
+
+# Version 2.2.0.sopris.3
+
+## <ins>Backend Changes</ins>
+
+### MongoDB Query Optimization
+
+- Optimized MDS (Multi-Data Section) reference queries to prevent 16MB BSON limit overflow
+- Replaced inefficient two-step query with optimized single pipeline using `$lookup` with embedded matching
+- Now MongoDB filters referencing objects directly during the join operation
+- Significant reduction in data transfer by only fetching objects that actually reference the target
+- Eliminated risk of exceeding MongoDB's 16MB document size limit by:
+  - Avoiding full collection scans
+  - Performing all filtering at database level
+  - Reducing intermediate result sets
+- Improved performance for object reference operations, especially with large datasets
+
+### Behavior Changes:
+- Old implementation fetched ALL potentially referencing objects then filtered client-side
+- New implementation uses `$expr` and `$elemMatch` to filter during database join
+- Results are now more consistent and reliable with large datasets
