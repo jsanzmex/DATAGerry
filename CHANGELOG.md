@@ -212,3 +212,15 @@ A bug in the `DELETE /rest/types/<int:public_id>` endpoint that prevented types 
 - Old implementation fetched ALL potentially referencing objects then filtered client-side
 - New implementation uses `$expr` and `$elemMatch` to filter during database join
 - Results are now more consistent and reliable with large datasets
+
+
+# Version 2.2.0.sopris.4
+
+## <ins>Backend Changes</ins>
+
+### MongoConnector Refactor
+
+- The MongoConnector class was refactored to use a single MongoDB URI from the environment variable MONGODB_URI instead of separate host and port parameters. This change was made to allow using a connection URI for MongoDB Atlas.
+- Method signature remains unchanged to avoid breaking existing code, but the attributes host and port were removed because they were not used anywhere in the code.
+- CRUD operations for types and objects were validated to ensure correct behavior with the new connection approach.
+- The database configuration in ./etc/cmdb.conf is now partially obsolete: only database_name is used, while host, port and are ignored. All connection details should now be provided via the MONGODB_URI environment variable.

@@ -17,6 +17,7 @@
 Database-Connection
 Real connection to database over a given connector
 """
+import os
 import logging
 
 from pymongo import MongoClient
@@ -37,14 +38,11 @@ class MongoConnector:
     """
 
     def __init__(self, host: str, port: int, database_name: str, client_options: dict = None):
-        if client_options:
-            self.client: MongoClient = MongoClient(host=host, port=int(port), connect=False, **client_options)
-        else:
-            self.client: MongoClient = MongoClient(host=host, port=int(port), connect=False)
+        uri = os.getenv("MONGODB_URI")
+
+        self.client: MongoClient = MongoClient(uri, connect=False, **client_options)
 
         self.database: Database = self.client.get_database(database_name)
-        self.host: str = host
-        self.port: int = port
 
 
     def set_database(self, db_name: str):
