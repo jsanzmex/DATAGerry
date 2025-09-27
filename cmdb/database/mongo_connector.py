@@ -38,7 +38,10 @@ class MongoConnector:
     """
 
     def __init__(self, host: str, port: int, database_name: str, client_options: dict = None):
-        uri = os.getenv("MONGODB_URI")
+        if "database_uri" in client_options:
+            uri = client_options.pop("database_uri")
+        else:
+            raise  ValueError("The 'database_uri' must be provided. Please configure it in the Database section of cmdb.conf.")
 
         self.client: MongoClient = MongoClient(uri, connect=False, **client_options)
 

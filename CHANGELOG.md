@@ -224,3 +224,17 @@ A bug in the `DELETE /rest/types/<int:public_id>` endpoint that prevented types 
 - Method signature remains unchanged to avoid breaking existing code, but the attributes host and port were removed because they were not used anywhere in the code.
 - CRUD operations for types and objects were validated to ensure correct behavior with the new connection approach.
 - The database configuration in ./etc/cmdb.conf is now partially obsolete: only database_name is used, while host, port and are ignored. All connection details should now be provided via the MONGODB_URI environment variable.
+
+
+# Version 2.2.0.sopris.5
+
+## <ins>Backend Changes</ins>
+
+### MongoConnector Configuration Update
+
+- Previous Version (2.2.0.sopris.4) Limitations:
+The MongoConnector refactor introduced in version 2.2.0.sopris.4 was not very practical because injecting an environment variable into the RPM proved to be difficult.
+
+- Current Behavior:
+The MongoDB URI is now read directly from the configuration file ./etc/cmdb.conf. This removes the dependency on setting an environment variable.
+   - The URI should be set in the [Database] section using the key database_uri.
