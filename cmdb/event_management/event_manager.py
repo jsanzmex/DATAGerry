@@ -188,16 +188,22 @@ class EventSenderAmqp(threading.Thread):
                 exchange=self.__config_exchange,
                 exchange_type="topic"
             )
-        except pika.exceptions.AMQPConnectionError as err:
-            LOGGER.debug("pika.exceptions.AMQPConnectionError: %s", err)
+        except (pika.exceptions.AMQPConnectionError, OSError) as err:
+            LOGGER.debug("Connection error: %s", err)
             LOGGER.error("%s: EventSenderAmqp connection error", self.__process_id)
-            self.__flag_shutdown.set()
+            # Don't set __flag_shutdown — a missing RabbitMQ should not shut down the service
 
 
     def run(self):
         """run the event sender"""
         # init connection to broker
         self.__init_connection()
+
+        # Exit if RabbitMQ is unavailable — service keeps running without event support
+        if self.__channel is None:
+            LOGGER.warning("%s: RabbitMQ unavailable — event sending disabled, service continues without it",
+                           self.__process_id)
+            return
 
         # check queue for new events
         while not self.__flag_shutdown.is_set():
@@ -313,16 +319,23 @@ class EventReceiverAmqp(threading.Thread):
 
             # register callback function for event handling
             self.__channel.basic_consume(self.__process_event_cb, queue=queue_handler, no_ack=True)
-        except AMQPConnectionError as err:
-            LOGGER.debug("AMQPConnectionError: %s", err)
-            LOGGER.error("%s: EventReceiverAmqp connection error",self.__process_id)
-            self.__flag_shutdown.set()
+        except (AMQPConnectionError, OSError) as err:
+            LOGGER.debug("Connection error: %s", err)
+            LOGGER.error("%s: EventReceiverAmqp connection error", self.__process_id)
+            # Don't set __flag_shutdown — a missing RabbitMQ should not shut down the service
 
 
     def run(self):
         """run the event receiver"""
         # init connection to broker
         self.__init_connection()
+
+        # Exit if RabbitMQ is unavailable — service keeps running without event support
+        if self.__channel is None:
+            LOGGER.warning("%s: RabbitMQ unavailable — event receiving disabled, service continues without it",
+                           self.__process_id)
+            return
+
         while not self.__flag_shutdown.is_set():
             try:
                 # start handling events

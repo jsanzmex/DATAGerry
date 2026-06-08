@@ -15,9 +15,9 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # set environment variables
-BUILDVAR_VERSION = 2.2.0.sopris.5
-BUILDVAR_VERSION_EXT = 2.2.0.sopris.5
-BUILDVAR_DOCKER_TAG = 2.2.0.sopris.5
+BUILDVAR_VERSION = 2.2.0.sopris.6
+BUILDVAR_VERSION_EXT = 2.2.0.sopris.6
+BUILDVAR_DOCKER_TAG = 2.2.0.sopris.6
 BIN_PYINSTALLER = pyinstaller
 BIN_SPHINX = sphinx-build
 BIN_PYTEST = pytest

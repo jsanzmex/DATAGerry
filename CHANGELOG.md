@@ -238,3 +238,15 @@ The MongoConnector refactor introduced in version 2.2.0.sopris.4 was not very pr
 - Current Behavior:
 The MongoDB URI is now read directly from the configuration file ./etc/cmdb.conf. This removes the dependency on setting an environment variable.
    - The URI should be set in the [Database] section using the key database_uri.
+
+
+# Version 2.2.0.sopris.6
+
+## <ins>Backend Changes</ins>
+
+### RabbitMQ Connection Made Optional
+
+- DataGerry no longer shuts down when RabbitMQ is unavailable.
+- Previously, a failed connection to the message broker (RabbitMQ) would trigger a full service shutdown via the shared `flag_shutdown` event, causing the container to restart in a loop.
+- The `EventSenderAmqp` and `EventReceiverAmqp` threads now exit silently when RabbitMQ is unreachable, leaving the web server and all core CMDB functionality fully operational.
+- This change is required for Cloud Run deployments where no message broker is available.
