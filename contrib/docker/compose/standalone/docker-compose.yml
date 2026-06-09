@@ -1,0 +1,27 @@
+services:
+
+  datagerry:
+    build:
+      context: .
+    hostname: datagerry
+    depends_on:
+      - db
+    environment:
+      MONGODB_URI: "mongodb://db:27017/cmdb"
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+
+  db:
+    image: mongo:4.4.29
+    hostname: db
+    restart: unless-stopped
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongodb-data:
+  mongodb-config:
