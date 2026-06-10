@@ -26,7 +26,10 @@ if [ -z "$DATABASE_NAME" ]; then
     exit 1
 fi
 
-sed -i "s|^database_uri = .*|database_uri = ${MONGODB_URI}|" /etc/datagerry/cmdb.conf
+# & and \ are special characters in sed replacement strings — escape them first
+ESCAPED_URI=$(printf '%s' "$MONGODB_URI" | sed 's/[&\]/\\&/g')
+
+sed -i "s|^database_uri = .*|database_uri = ${ESCAPED_URI}|" /etc/datagerry/cmdb.conf
 sed -i "s|^database_name = .*|database_name = ${DATABASE_NAME}|" /etc/datagerry/cmdb.conf
 
 exec "$@"
