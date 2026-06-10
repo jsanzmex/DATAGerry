@@ -7,7 +7,8 @@
 # patches cmdb.conf at container startup using env vars injected by Cloud Run.
 #
 # Required env vars:
-#   MONGODB_URI — full MongoDB connection string (e.g. mongodb+srv://...)
+#   MONGODB_URI     — full MongoDB connection string (e.g. mongodb+srv://...)
+#   DATABASE_NAME   — name of the MongoDB database (e.g. cmdb)
 #
 # When ENTRYPOINT and CMD are both set, Docker passes CMD as arguments to
 # the entrypoint — it does not run CMD directly. The entrypoint patches
@@ -20,6 +21,12 @@ if [ -z "$MONGODB_URI" ]; then
     exit 1
 fi
 
+if [ -z "$DATABASE_NAME" ]; then
+    echo "ERROR: DATABASE_NAME environment variable is not set." >&2
+    exit 1
+fi
+
 sed -i "s|^database_uri = .*|database_uri = ${MONGODB_URI}|" /etc/datagerry/cmdb.conf
+sed -i "s|^database_name = .*|database_name = ${DATABASE_NAME}|" /etc/datagerry/cmdb.conf
 
 exec "$@"

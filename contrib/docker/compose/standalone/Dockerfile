@@ -18,7 +18,7 @@ ENV LANG=${build_locale}.utf8
 RUN printf '[Database]\n\
 host = 127.0.0.1\n\
 port = 27017\n\
-database_name = cmdb\n\
+database_name = <REPLACED WITH DATABASE_NAME ENV VAR>\n\
 database_uri = <REPLACED WITH MONGODB_URI ENV VAR>\n\
 ;username = username\n\
 ;password = password\n\

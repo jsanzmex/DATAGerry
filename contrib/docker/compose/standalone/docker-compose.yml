@@ -8,6 +8,7 @@ services:
       - db
     environment:
       MONGODB_URI: "mongodb://db:27017/cmdb"
+      DATABASE_NAME: "cmdb"
     restart: unless-stopped
     ports:
       - "4000:4000"
